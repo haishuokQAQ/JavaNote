@@ -4,24 +4,25 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-public class ReceiveHandler extends ChannelInboundHandlerAdapter{
-	private mail mailPro = new mail();
+public class ClientHandler extends ChannelInboundHandlerAdapter{
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		ByteBuf buf = (ByteBuf)msg;
 		byte[] data = new byte[buf.readableBytes()];
 		buf.readBytes(data);
-		System.out.println(data.length);
-		byte[] result = mailPro.parse(data, data.length);
-		ByteBuf bufOut = ctx.alloc().buffer(result.length);
-		bufOut.writeBytes(result);
-		ctx.writeAndFlush(bufOut);
+		System.out.println("Receive from server " + new String(data));
 	}
-	
 	
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		System.out.println(ctx.channel().remoteAddress().toString());
+		byte[] data = new byte[20];
+		 ByteBuf encoded = ctx.alloc().buffer(20);
+		data[4] = 12;
+		data[8] = 'a';
+		encoded.writeBytes(data);
+		ctx.writeAndFlush(encoded);
+		System.out.println("Send message.");
+		System.out.println(ctx.channel().remoteAddress());
 	}
 	
 }
